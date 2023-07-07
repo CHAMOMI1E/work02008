@@ -1,24 +1,46 @@
-import os
-from flask import Flask
-from dotenv import load_dotenv
-from peewee import PostgresqlDatabase
+import flask
 
-load_dotenv()
+from models import *
+from flask import Flask, request, render_template, url_for
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from sqlalchemy.dialects.postgresql import JSONB
+
 app = Flask(__name__)
-DB_NAME = os.environ.get("POSTGRES_DB")
-DB_USER = os.environ.get("POSTGRES_USER")
-DB_PASS = os.environ.get("POSTGRES_PASSWORD")
-DB_HOST = os.environ.get("POSTGRES_HOST")
-DB_PORT = 5432  # os.environ.get("POSTGRES_PORT")
-
-db = PostgresqlDatabase(
-    DB_NAME, user=DB_USER, password=DB_PASS, host=DB_HOST, port=DB_PORT
-)
-
-@app.route("/")
-def start():
-    pass
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:02082002@localhost:5433/test_db"
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 
-if __name__ == '__main__':
-    app.run()
+class TestModel(db.Model):
+    __tablename__ = 'test'
+
+    id = db.Column(db.Integer, primary_key=True)
+    json_column = db.Column(JSONB)
+
+    def __init__(self, json_column):
+        self.json_column = json_column
+
+    def __repr__(self):
+        return f"<Car {self.name}>"
+
+
+@app.route('/')
+def home():
+    return render_template('home.html')
+
+
+@app.route('/read')
+def read():
+    smth = TestModel.query.all()
+    return render_template('read.html', smth=smth)
+
+
+@app.route('/create')
+def create():
+    if request.method == "post":
+        text = request.form['name']
+        print(text)
+        return url_for('home')
+    else:
+        return render_template('create.html')
