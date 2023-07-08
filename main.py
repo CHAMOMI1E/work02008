@@ -1,13 +1,12 @@
-import flask
-
 from models import *
-from flask import Flask, request, render_template, url_for
+from flask import Flask, request, render_template, url_for, redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy.dialects.postgresql import JSONB
+import json
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:02082002@localhost:5433/test_db"
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://CHAMOMILE:02082002@localhost:5432/test_db"
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
@@ -25,6 +24,7 @@ class TestModel(db.Model):
         return f"<Car {self.name}>"
 
 
+
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -36,11 +36,14 @@ def read():
     return render_template('read.html', smth=smth)
 
 
-@app.route('/create')
+@app.route('/create', methods=['GET', 'POST'])
 def create():
-    if request.method == "post":
-        text = request.form['name']
-        print(text)
-        return url_for('home')
+    if request.method == "POST":
+        data = request.form.getlist('name[]')
+        some_json=json.dumps(dict(zip([str(i) for i in range(1,len(data)+1)], data)))
+        print(some_json)
+        db.session.add(TestModel(json_column=some_json))
+        db.session.commit()
+        return redirect('/read')
     else:
         return render_template('create.html')
