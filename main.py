@@ -19,9 +19,6 @@ class TestModel(db.Model):
     def __init__(self, json_column):
         self.json_column = json_column
 
-    def __repr__(self):
-        return f"<Car {self.name}>"
-
 
 
 @app.route('/')
