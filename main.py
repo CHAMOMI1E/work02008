@@ -1,12 +1,11 @@
-from models import *
-from flask import Flask, request, render_template, url_for, redirect
+from flask import Flask, request, render_template, redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy.dialects.postgresql import JSONB
 import json
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://CHAMOMILE:02082002@localhost:5432/test_db"
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://test_username:test_password@localhost:54321/test_db"
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 

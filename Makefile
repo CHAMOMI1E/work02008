@@ -1,13 +1,19 @@
-start: #start on linux mint
+start_linux: #start on linux mint
     sudo docker-compose down
-	python3 -m venv .venv
-	sudo docker-compose up --build -d
-	.venv/bin/python3 -m pip install --upgrade pip
+	python -m venv .venv
+	.venv/bin/python -m pip install --upgrade pip
 	.venv/bin/pip install -r requirements.txt
 	sudo docker-compose up --build -d
 	sleep 5
-	.venv/bin/python3 main.py
+	flask db upgrade
+	flask run
 
-test:
+start_windows:
     docker-compose down
-    docker-compose up --build -d
+	python -m venv .venv
+	.venv/bin/python -m pip install --upgrade pip
+	.venv/bin/pip install -r requirements.txt
+	docker-compose up --build -d
+	sleep 5
+	flask db upgrade
+	flask run
